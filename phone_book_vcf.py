@@ -29,7 +29,7 @@ class Person:
 	dic_phonebook = {}
 	
 	#对象初始化，完成联系人信息的检查和字典键值对的添加
-	def __init__(self, fn, uid, *tels):
+	def __init__(self, fn, uid, tels):
 		'''Initializes the person's data.'''
 		self.fn = fn.decode('utf-8')
 		self.uid = uid
@@ -59,17 +59,20 @@ class Person:
 		'''Greeting by the person.
 
 		Really, that's all it does.'''
-		print 'Hi, my name is %s, my uid is %s, my tel is %s.' % (self.fn, self.uid, self.tels)
-		#for tel in self.tels:
-		#	print tel,
-		#print self.tels[0],
-		#print '.'
+		print 'Hi, my name is %s, my uid is %s, my tel is %s.' % (self.fn, self.uid, ','.join(self.tels))
+
+	#导出联系人信息
+	def exportinf(self):
+		'''Greeting by the person.
+
+		Really, that's all it does.'''
+		return '%s,%s,%s' % (self.fn, self.uid, ','.join(self.tels))
 
 #目前的搜索只能根据名字的部分拼音进行搜索，还没实现首字母搜索
 def person_search():
-	s_name = raw_input('请输入你要搜索的名字的拼音：').lower()
+	s_name = ''.join(lpy(raw_input('请输入你要搜索的名字部分(Please input the search string):').decode('utf-8')))
 	while s_name == '':
-		s_name = raw_input('请输入你要搜索的名字的拼音：').lower()
+		s_name = ''.join(lpy(raw_input('请输入你要搜索的名字部分(Please input the search string):').decode('utf-8')))
 	else: 
 		i = 0
 		for key in Person.dic_phonebook.keys():
@@ -77,12 +80,14 @@ def person_search():
 				Person.dic_phonebook[key].printinf()
 				i += 1
 		if i == 0:
-			print '未查询到结果。'
+			print '未查询到结果。(No result found.)'
+		else:
+			print '共查询到%d条记录。(%d results found.)' % (i,i)
 	return 0
 
 #用户输入的联系人，自动添加全零的uid，若重复给出提示，支持一个联系人多个电话录入
 def person_new():
-	print('请输入你要添加的联系人(中文）：')
+	print('请输入你要添加的联系人(中文）(Please input the name)：')
 	s_name = raw_input('name:')
 	if Person.dic_phonebook.has_key(''.join(lpy(s_name.decode('utf-8')))):
 		print '%s is exsits in your phone_book!' % s_name
@@ -92,7 +97,7 @@ def person_new():
 		s_input = raw_input('phone:')
 		if s_input == '': break
 		s_phone.append(s_input)
-	j = raw_input('确定要添加吗？(%s,%s)(y/n)：' % (s_name,s_phone)).lower()
+	j = raw_input('确定要添加吗？(Are you sure?)(%s,%s)(y/n)：' % (s_name,s_phone)).lower()
 	if j == 'y':
 		Person(s_name,'0000000000000000',s_phone)
 	else:
@@ -105,19 +110,19 @@ def person_list():
 	return 0
 
 def person_delete():	
-	print('请输入你要删除的联系人：')
+	print('请输入你要删除的联系人：(The name to be deleted:)')
 	s_name = ''.join(lpy(raw_input('name:').decode('utf-8')))
 	if Person.dic_phonebook.has_key(s_name):
 		del Person.dic_phonebook[s_name]
 	else:
-		print '无此联系人。'
+		print '无此联系人。(Found none.)'
 	print '\nPrintDIC......dic_phonebook\'s length is %d.' % len(Person.dic_phonebook)
 	return 0
 
 def person_import():	
-	vcf_file = raw_input('请输入要导入文件的路径(.vcf)：')
+	vcf_file = raw_input('请输入要导入文件的路径(File to be imported:)(.vcf)：')
 	if not os.path.exists(vcf_file):
-		print '文件不存在！'
+		print '文件不存在！(File not found!)'
 		return 0
 	#i = 0
 	fn = uid = ''
@@ -143,30 +148,41 @@ def person_import():
 			#if i >= 24: return 0
 	return 0
 
+def person_export():
+	lst = []
+	export_file = 'export.csv'
+	try:
+		with open(export_file,'w') as f:
+			for p in Person.dic_phonebook.values():
+				lst.append(p.exportinf())
+			f.write('\n'.join(lst).encode('utf-8'))
+		print 'Exporting......to %s success. ' % export_file
+	except:
+		print 'Exporting......error, please check the program!'
 def person_clear():	
-	j = raw_input('确实要清空联系人吗？(y/n)：').lower()
+	j = raw_input('确实要清空联系人吗？(Are you sure?)(y/n)：').lower()
 	if j == 'y':
 		Person.dic_phonebook.clear()
 		print '\nPrintDIC......dic_phonebook cleared! Its length is 0 now.'
 	return 0
 
 def person_option():
+	option_func = {'i':person_import,'e':person_export,'c':person_clear}
 	while True:
 		print '*'*50
-		print '设置：\n1.导入联系人(i):\n2.清空联系人(c):\n0.退出(q):\n'	#打印出功能列表
-		i = raw_input('请选择操作：').lower()
-		if   i == 'q': break
-		elif i == 'i': person_import()
-		elif i == 'c': person_clear()
-		else:
-			print 'You have input the wrong character!'	
+		print '>>>设置/Option(o):\n\t>>>导入联系人/Import_contact_vcf(i):\n\t>>>导出联系人/Export_contact_csv(e):\n\t>>>清空联系人/Clear_contact(c):\n\t>>>退出/Quit(q):\n'	#打印出功能列表
+		i = raw_input('请选择操作(Please select:)：').lower()
+		if i == 'q': break
+		option_func.get(i,dic_error)()
+		time.sleep(0.5)
 	return 0
 
 def dic_error():
 	print 'You have input the wrong character!'	
 	return 0
 
-#主程序，用户不退出时反复循环读取cPickle-->操作联系人-->保存cPickle的流程
+#主程序，首先检查是否存在data文件，不存在则创建并写入示例
+#用户不退出时反复循环读取用户输入并执行相应操作，最后保存cPickle
 if __name__ == "__main__": 
 	dic_func = {'s':person_search,'n':person_new,'l':person_list,'d':person_delete,'o':person_option}
 	dicpb_file = 'vcf_phonebook.data'
@@ -188,8 +204,8 @@ if __name__ == "__main__":
 	while True:
 		print
 		print '*'*50
-		print '1.搜索(s):\n2.新建(n):\n3.列出(l):\n4.删除(d):\n5.设置(o):\n0.退出(q):\n'	#打印出功能列表
-		i = raw_input('请选择操作：').lower()
+		print '当前联系人总数(Totle persons now):%d.\n\n>>>搜索/Search(s):\n>>>新建New(n):\n>>>列出List(l):\n>>>删除Delete(d):\n>>>设置Option(o):\n>>>退出Quit(q):\n' % len(Person.dic_phonebook)	#打印出功能列表
+		i = raw_input('请选择操作(Please select)：').lower()
 		if i == 'q': break
 		dic_func.get(i,dic_error)()
 		time.sleep(0.5)
