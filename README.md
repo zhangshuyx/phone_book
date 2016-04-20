@@ -2,9 +2,9 @@
 
 ##phone_book .py(s)
 
-__Language:__Chinese/English
+__Language:__ Chinese/English
 
-__Function:__A phone_book program, support basic functions __Search/New/List/Delete/Option/Quit__ , and advanced functions __Import/Export/Clear__.
+__Function:__ A phone_book program, support basic functions __Search/New/List/Delete/Option/Quit__ , and advanced functions  __Import/Export/Clear__ .
 
 __1.Search:__ search contact
 
