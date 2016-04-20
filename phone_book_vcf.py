@@ -6,7 +6,7 @@
 # ------------------------------------------------------------
 # Script   Name: phone_book_vcf.py
 # Creation Date: 2016-04-15  10:00
-# Last Modified: 2016-04-15  18:00
+# Last Modified: 2016-04-20  09:50
 # Copyright (c)2016, 
 # Purpose: This file used for Learning
 # ------------------------------------------------------------
@@ -18,7 +18,11 @@
  ##############################################
 import cPickle as p
 import sys,time,os.path
-from pypinyin import lazy_pinyin as lpy
+try:
+	from pypinyin import lazy_pinyin as lpy
+except:
+	print('Error......You must install the pypinyin module first!')
+	sys.exit()
 
 #定义Person类，包含类变量和类方法
 class Person:
@@ -95,7 +99,11 @@ def person_new():
 	s_phone = []
 	while True:
 		s_input = raw_input('phone:')
-		if s_input == '': break
+		if s_input == '':
+			break
+		elif not s_input.replace(' ','').replace('+','').isdigit():
+			print ('Error......telnum format error! Please retry.')
+			continue
 		s_phone.append(s_input)
 	j = raw_input('确定要添加吗？(Are you sure?)(%s,%s)(y/n)：' % (s_name,s_phone)).lower()
 	if j == 'y':
@@ -114,8 +122,9 @@ def person_delete():
 	s_name = ''.join(lpy(raw_input('name:').decode('utf-8')))
 	if Person.dic_phonebook.has_key(s_name):
 		del Person.dic_phonebook[s_name]
+		print('Success......%s has been deleted!' % s_name)
 	else:
-		print '无此联系人。(Found none.)'
+		print 'Error......无此联系人。(Found none.)'
 	print '\nPrintDIC......dic_phonebook\'s length is %d.' % len(Person.dic_phonebook)
 	return 0
 
@@ -204,7 +213,7 @@ if __name__ == "__main__":
 	while True:
 		print
 		print '*'*50
-		print '当前联系人总数(Totle persons now):%d.\n\n>>>搜索/Search(s):\n>>>新建New(n):\n>>>列出List(l):\n>>>删除Delete(d):\n>>>设置Option(o):\n>>>退出Quit(q):\n' % len(Person.dic_phonebook)	#打印出功能列表
+		print '当前联系人总数(Totle persons now):%d.\n\n>>>搜索/Search(s):\n>>>新建/New(n):\n>>>列出/List(l):\n>>>删除/Delete(d):\n>>>设置/Option(o):\n>>>退出/Quit(q):\n' % len(Person.dic_phonebook)	#打印出功能列表
 		i = raw_input('请选择操作(Please select)：').lower()
 		if i == 'q': break
 		dic_func.get(i,dic_error)()
