@@ -34,13 +34,13 @@ class Person:
 	
 	#对象初始化，完成联系人信息的检查和字典键值对的添加
 	def __init__(self, fn, uid, tels):
-		'''Initializes the person's data.'''
+		'''Initializes the contact's data.'''
 		self.fn = fn.decode('utf-8')
 		self.uid = uid
 		self.tels = tels
 
 		print '\n......(Initializing %s)......' % self.fn
-		# When this person is created, he/she
+		# When this contact is created, he/she
 		# adds to the population
 		self.__class__.population += 1
 		self.__class__.dic_phonebook[''.join(lpy(fn.decode('utf-8')))] = self	#将新对象添加到字典，name:Person()
@@ -60,20 +60,20 @@ class Person:
 
 	#打印联系人信息
 	def printinf(self):
-		'''Greeting by the person.
+		'''Greeting by the contact.
 
 		Really, that's all it does.'''
 		print 'Hi, my name is %s, my uid is %s, my tel is %s.' % (self.fn, self.uid, ','.join(self.tels))
 
 	#导出联系人信息
 	def exportinf(self):
-		'''Greeting by the person.
+		'''Greeting by the contact.
 
 		Really, that's all it does.'''
 		return '%s,%s,%s' % (self.fn, self.uid, ','.join(self.tels))
 
 #目前的搜索只能根据名字的部分拼音进行搜索，还没实现首字母搜索
-def person_search():
+def contact_search():
 	s_name = ''.join(lpy(raw_input('请输入你要搜索的名字部分(Please input the search string):').decode('utf-8')))
 	while s_name == '':
 		s_name = ''.join(lpy(raw_input('请输入你要搜索的名字部分(Please input the search string):').decode('utf-8')))
@@ -90,7 +90,7 @@ def person_search():
 	return 0
 
 #用户输入的联系人，自动添加全零的uid，若重复给出提示，支持一个联系人多个电话录入
-def person_new():
+def contact_new():
 	print('请输入你要添加的联系人(中文）(Please input the name)：')
 	s_name = raw_input('name:')
 	if Person.dic_phonebook.has_key(''.join(lpy(s_name.decode('utf-8')))):
@@ -112,12 +112,12 @@ def person_new():
 		pass
 	return 0
 
-def person_list():
+def contact_list():
 	for s_name in Person.dic_phonebook.keys():
 		Person.dic_phonebook[s_name].printinf()
 	return 0
 
-def person_delete():	
+def contact_delete():	
 	print('请输入你要删除的联系人：(The name to be deleted:)')
 	s_name = ''.join(lpy(raw_input('name:').decode('utf-8')))
 	if Person.dic_phonebook.has_key(s_name):
@@ -128,7 +128,7 @@ def person_delete():
 	print '\nPrintDIC......dic_phonebook\'s length is %d.' % len(Person.dic_phonebook)
 	return 0
 
-def person_import():	
+def contact_import():	
 	vcf_file = raw_input('请输入要导入文件的路径(File to be imported:)(.vcf)：')
 	if not os.path.exists(vcf_file):
 		print '文件不存在！(File not found!)'
@@ -139,7 +139,7 @@ def person_import():
 	with open(vcf_file) as f:
 		for line in f.readlines():
 			#if line == 'BEGIN:VCARD\r\n':
-				#print 'New person!'
+				#print 'New contact!'
 				#pass
 			#elif line.startswith('N:'):
 			#       lst.append(line[3:-5]+' ')
@@ -157,7 +157,7 @@ def person_import():
 			#if i >= 24: return 0
 	return 0
 
-def person_export():
+def contact_export():
 	lst = []
 	export_file = 'export.csv'
 	try:
@@ -168,18 +168,18 @@ def person_export():
 		print 'Exporting......to %s success. ' % export_file
 	except:
 		print 'Exporting......error, please check the program!'
-def person_clear():	
+def contact_clear():	
 	j = raw_input('确实要清空联系人吗？(Are you sure?)(y/n)：').lower()
 	if j == 'y':
 		Person.dic_phonebook.clear()
 		print '\nPrintDIC......dic_phonebook cleared! Its length is 0 now.'
 	return 0
 
-def person_option():
-	option_func = {'i':person_import,'e':person_export,'c':person_clear}
+def contact_option():
+	option_func = {'i':contact_import,'e':contact_export,'c':contact_clear}
 	while True:
 		print '*'*50
-		print '>>>设置/Option(o):\n\t>>>导入联系人/Import_contact_vcf(i):\n\t>>>导出联系人/Export_contact_csv(e):\n\t>>>清空联系人/Clear_contact(c):\n\t>>>退出/Quit(q):\n'	#打印出功能列表
+		print '>>>设置/Option(o):\n\t>>>导入联系人/Import_contacts_vcf(i):\n\t>>>导出联系人/Export_contacts_csv(e):\n\t>>>清空联系人/Clear_contacts(c):\n\t>>>退出/Quit(q):\n'	#打印出功能列表
 		i = raw_input('请选择操作(Please select:)：').lower()
 		if i == 'q': break
 		option_func.get(i,dic_error)()
@@ -193,7 +193,7 @@ def dic_error():
 #主程序，首先检查是否存在data文件，不存在则创建并写入示例
 #用户不退出时反复循环读取用户输入并执行相应操作，最后保存cPickle
 if __name__ == "__main__": 
-	dic_func = {'s':person_search,'n':person_new,'l':person_list,'d':person_delete,'o':person_option}
+	dic_func = {'s':contact_search,'n':contact_new,'l':contact_list,'d':contact_delete,'o':contact_option}
 	dicpb_file = 'vcf_phonebook.data'
 	#第一次执行程序时创建文件并存入示例联系人
 	if not os.path.exists(dicpb_file):
@@ -213,7 +213,7 @@ if __name__ == "__main__":
 	while True:
 		print
 		print '*'*50
-		print '当前联系人总数(Totle persons now):%d.\n\n>>>搜索/Search(s):\n>>>新建/New(n):\n>>>列出/List(l):\n>>>删除/Delete(d):\n>>>设置/Option(o):\n>>>退出/Quit(q):\n' % len(Person.dic_phonebook)	#打印出功能列表
+		print '当前联系人总数(Totle contacts now):%d.\n\n>>>搜索/Search(s):\n>>>新建/New(n):\n>>>列出/List(l):\n>>>删除/Delete(d):\n>>>设置/Option(o):\n>>>退出/Quit(q):\n' % len(Person.dic_phonebook)	#打印出功能列表
 		i = raw_input('请选择操作(Please select)：').lower()
 		if i == 'q': break
 		dic_func.get(i,dic_error)()
